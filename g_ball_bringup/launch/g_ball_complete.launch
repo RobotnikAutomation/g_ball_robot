@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<launch>
+
+
+  <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find g_ball_description)/robots/gball_pg70.urdf.xacro'" />
+ 
+  <param name="robot_description" command="$(arg urdf_file)" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+  	<param name="publish_frequency" value="50"/>
+  </node>
+
+  
+  <!-- Launches openni kinect  node -->
+  <!-- include file="$(find openni_launch)/launch/openni.launch" / -->
+
+  <!-- Launches modbus_io node -->
+  <!--param name="modbus_io_node/ip_address" value="192.168.2.185" />
+  <node pkg="modbus_io" type="modbus_io_node" name="modbus_io_node" output="screen"/-->    
+ 
+  <!-- Launches the camera AXIS -->
+  <!--include file="$(find axis_camera)/axis_ptz.launch" /-->
+
+  <!-- HOKUYO -->
+  <!--node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">s
+   	<param name="calibrate_time" type="bool" value="false"/> 
+  	<param name="port" type="string" value="/dev/ttyACM0"/> 
+  	<param name="intensity" type="bool" value="false"/>
+	<param name="calibrate_time" type="bool" value="false"/>  
+	<param name="port" type="string" value="/dev/ttyACM0"/> 
+	<param name="intensity" type="bool" value="false"/>
+    	<param name="frame_id" value="/laser"/>
+  </node-->
+
+  <!-- RLY08 I/O device -->
+  <!--include file="$(find rly_08)/launch/rly_08.launch"/-->
+  
+  <!-- Robotnik tilt laser (launches also Hokuyo node) -->
+  <!--include file="$(find robotnik_tilt_laser)/launch/robotnik_tilt.launch"/-->  
+ 
+  <!-- Launches guardian  node -->
+  <include file="$(find guardian_complete)/launch/guardian_roboteq.launch" />
+
+  <!-- Launches guardian  pad -->
+  <include file="$(find guardian_complete)/launch/guardian_pad.launch" />
+  
+  <!-- Launches pixhawk -->
+  <!--include file="$(find guardian_complete)/launch/imu_pixhawk.launch" /-->
+  
+  <!-- WAM Teleop Node -->
+  <!--node pkg="wam_teleop" type="wam_joystick_teleop" name="wam_joystick_teleop" output="screen"/-->
+
+  <!-- Launches POWERBALL ARM -->
+  <include file="$(find g_ball_bringup)/launch/lwa4p.launch"/>
+  
+  <!-- Launches WSG_50 GRIPPER -->
+  <!--include file="$(find wsg_50)/launch/wsg_50_can.launch" /-->
+
+  
+</launch>
+
