@@ -14,8 +14,7 @@
   <!-- include file="$(find openni_launch)/launch/openni.launch" / -->
 
   <!-- Launches modbus_io node -->
-  <!--param name="modbus_io_node/ip_address" value="192.168.2.185" />
-  <node pkg="modbus_io" type="modbus_io_node" name="modbus_io_node" output="screen"/-->    
+  <include file="$(find g_ball_bringup)/launch/robotnik_modbus_io.launch"/>
  
   <!-- Launches the camera AXIS -->
   <!--include file="$(find axis_camera)/axis_ptz.launch" /-->
