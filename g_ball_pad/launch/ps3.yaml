@@ -1,0 +1,12 @@
+num_of_buttons: 17
+axis_linear: 1
+axis_angular: 2
+scale_linear: 1.0
+scale_angular: 1.5
+
+button_dead_man: 11
+button_dead_man_lwa4p: 9
+
+button_next_joint: 12
+button_previous_joint: 14
+
