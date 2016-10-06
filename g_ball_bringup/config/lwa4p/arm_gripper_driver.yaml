@@ -25,5 +25,5 @@ nodes:
     id: 8
   pg70_finger_left_joint:
     id: 12
-    pos_to_device: "rint(rad2deg(pos * 28.75)*1000)" # Conversion from linear axis to revolute axis, and rag -> mdeg
-    pos_from_device: "deg2rad(obj6064 / 28.75)/1000"
+    pos_to_device: "rint(rad2deg((pos - 0.0045) * 34.705882353)*1000)" # Conversion from linear axis to revolute axis, and rag -> mdeg
+    pos_from_device: "deg2rad(obj6064 / 34.705882353)/1000 + 0.0045"
