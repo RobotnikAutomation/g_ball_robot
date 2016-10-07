@@ -42,6 +42,9 @@
   <!-- Launches guardian  pad -->
   <include file="$(find guardian_complete)/launch/guardian_pad.launch" />
   
+  <!-- Launches g_ball_pad to control the LWA4P using a joint_trajectory_controller command -->
+  <include file="$(find g_ball_pad)/launch/g_ball_pad.launch" />
+
   <!-- Launches pixhawk -->
   <!--include file="$(find guardian_complete)/launch/imu_pixhawk.launch" /-->
   
@@ -49,7 +52,7 @@
   <!--node pkg="wam_teleop" type="wam_joystick_teleop" name="wam_joystick_teleop" output="screen"/-->
 
   <!-- Launches POWERBALL ARM -->
-  <include file="$(find g_ball_bringup)/launch/lwa4p.launch"/>
+  <!--include file="$(find g_ball_bringup)/launch/lwa4p.launch"/-->
   
   <!-- Launches WSG_50 GRIPPER -->
   <!--include file="$(find wsg_50)/launch/wsg_50_can.launch" /-->
