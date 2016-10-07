@@ -125,6 +125,14 @@ class GuardianPad
     
     int selected_joint_;
     sensor_msgs::JointState joint_states_msg_;
+    
+    struct joint_limit
+    {
+		double min;
+		double max;
+	};
+	
+	std::vector<joint_limit> joint_limits_;
 };
 
 
@@ -162,6 +170,23 @@ GuardianPad::GuardianPad():
     joint_names_.push_back(std::string("arm_6_joint"));
     joint_names_.push_back(std::string("pg70_finger_left_joint"));
     
+    // Initialize joint_limits_
+    for(int i=0; i<joint_names_.size(); i++)
+    {
+		joint_limit limit;
+		if(joint_names_[i]!=std::string("pg70_finger_left_joint"))
+		{
+			limit.min = JOINT_MIN_ANGLE;
+			limit.max = JOINT_MAX_ANGLE;
+		}
+		else // Custom limit for PG70 joint
+		{
+			limit.min = 0.0045;
+			limit.max = 0.0385;
+		}
+		joint_limits_.push_back(limit);
+	}
+    
     selected_joint_ = 0;
 	ROS_INFO("GBallPad::padCallback: selected joint %s", joint_names_[selected_joint_].c_str());
 
@@ -171,7 +196,7 @@ GuardianPad::GuardianPad():
 	pad_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &GuardianPad::padCallback, this);
 	joint_states_sub_ = nh_.subscribe<sensor_msgs::JointState>("/joint_states", 10, &GuardianPad::jointStatesCallback, this);
 	
-	joint_trajectory_pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>("/jaco_arm_controller/command", 1);
+	joint_trajectory_pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>("command", 1);
 
 	// Advertises new service to enable/disable the pad
 	enable_disable_srv_ = nh_.advertiseService("/guardian_pad/enable_disable",  &GuardianPad::EnableDisable, this);
@@ -277,11 +302,7 @@ void GuardianPad::padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 			bRegisteredButtonEvent[previous_joint_button_] = false;
 			
 			
-			
-		
-		
 		std::vector<double> trajectory;
-		
 		float desired_speed = l_scale_*joy->axes[linear_];
 		if (desired_speed == 0.0)
 		{
@@ -294,16 +315,20 @@ void GuardianPad::padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		double distance;
 		double desired_position;
 		if(desired_speed > 0)
-			desired_position = JOINT_MAX_ANGLE;
+			desired_position = joint_limits_[selected_joint_].max;
 		else if(desired_speed < 0)
-			desired_position = JOINT_MIN_ANGLE;
+			desired_position = joint_limits_[selected_joint_].min;
 		distance = desired_position - joint_positions[selected_joint_];
 		
-		//double time_from_start = distance / desired_speed;
-		double time_from_start = 5.0;
+		double time_from_start;
+		if(desired_speed != 0.0)
+			time_from_start = distance / desired_speed;
+		else
+			time_from_start = 0.0;
 		
 		
-		ROS_INFO("Desired position: %f, current position: %f, distance: %f", desired_position, joint_positions[selected_joint_], distance);
+		//ROS_INFO("Desired position: %f, current position: %f, distance: %f", desired_position, joint_positions[selected_joint_], distance);
+		//ROS_INFO("Desired_speed: %f, time_from_start: %f", desired_speed, time_from_start);
 		
 		// Publish trajectory
 		trajectory = joint_positions;
@@ -316,14 +341,6 @@ void GuardianPad::padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		publishJointTrajectory(joint_positions, 0.5); // Send current position
 	}
 
-	//sus_joy_freq->tick();	// Ticks the reception of joy events
-	
-	// Only publishes if it's enabled
-	//if(bEnable){
-
-		//pub_command_freq->tick();
-	//}
-	
 }
 
 void GuardianPad::publishJointTrajectory(std::vector<double> joint_positions, double time_from_start)
@@ -338,6 +355,9 @@ void GuardianPad::publishJointTrajectory(std::vector<double> joint_positions, do
 		point.accelerations.push_back(0.0);
 		point.effort.push_back(0.0);
 	}
+	
+	if(time_from_start < 0.0)
+		time_from_start = 0.0;
 	point.time_from_start = ros::Duration(time_from_start);
 	joint_trajectory.points.push_back(point);
 	

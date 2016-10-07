@@ -2,14 +2,17 @@
 <launch>
 
  <!-- joy node -->
-  <node name="joy" pkg="joy" type="joy_node" respawn="true">
+  <!--node name="joy" pkg="joy" type="joy_node" respawn="true">
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
-  </node>
+  </node-->
 
   <!-- Parameters -->
   <rosparam command="load" file="$(find g_ball_pad)/launch/ps3.yaml" />
-  <node name="g_ball_pad" pkg="g_ball_pad" type="g_ball_pad" output="screen"/>
+  <node name="g_ball_pad" pkg="g_ball_pad" type="g_ball_pad" output="screen">
+	<remap from="joint_states" to="/arm/joint_states"/>  
+	<remap from="command" to="/arm/joint_trajectory_controller/command"/>  
+  </node>
   
 </launch>
 
