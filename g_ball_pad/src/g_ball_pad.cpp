@@ -72,6 +72,7 @@ class GuardianPad
 	void publishJointTrajectory(std::vector<double> joint_positions, double time_from_start);
 	
 	ros::NodeHandle nh_;
+	ros::NodeHandle pnh_;
 
 	int linear_, angular_;
 	double l_scale_, a_scale_;
@@ -141,6 +142,7 @@ GuardianPad::GuardianPad():
   angular_(2)
 {
 
+	pnh_ = ros::NodeHandle("~");
 	current_vel = 0.1;
 
 	nh_.param("num_of_buttons", num_of_buttons_, DEFAULT_NUM_OF_BUTTONS);
@@ -199,7 +201,7 @@ GuardianPad::GuardianPad():
 	joint_trajectory_pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>("command", 1);
 
 	// Advertises new service to enable/disable the pad
-	enable_disable_srv_ = nh_.advertiseService("/guardian_pad/enable_disable",  &GuardianPad::EnableDisable, this);
+	enable_disable_srv_ = pnh_.advertiseService("enable_disable",  &GuardianPad::EnableDisable, this);
 	
 	// Diagnostics
 	updater_pad.setHardwareID("None");
@@ -345,6 +347,9 @@ void GuardianPad::padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
 void GuardianPad::publishJointTrajectory(std::vector<double> joint_positions, double time_from_start)
 {
+	if(!bEnable)
+		return;
+
 	trajectory_msgs::JointTrajectory joint_trajectory;
 	joint_trajectory.joint_names = joint_names_;
 	trajectory_msgs::JointTrajectoryPoint point;
@@ -374,7 +379,7 @@ void GuardianPad::jointStatesCallback(const sensor_msgs::JointState::ConstPtr& m
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "guardian_pad");
+	ros::init(argc, argv, "g_ball_pad");
 	GuardianPad guardian_pad;
 
 	ros::Rate r(50.0);
